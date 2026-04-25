@@ -2,7 +2,7 @@ name: Daily Medical Triage Train
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # every day at 02:00 UTC
+    - cron: '0 2 * * *'
   workflow_dispatch:
 
 jobs:
@@ -19,16 +19,35 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Debug environment
+        run: |
+          python - <<'PY'
+          import os
+          print("OPENAI_API_KEY exists:", bool(os.getenv("OPENAI_API_KEY")))
+          print("HF_TOKEN exists:", bool(os.getenv("HF_TOKEN")))
+          print("API_KEY exists:", bool(os.getenv("API_KEY")))
+          print("API_BASE_URL:", os.getenv("API_BASE_URL", "https://api.openai.com/v1"))
+          PY
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          API_KEY: ${{ secrets.API_KEY }}
+
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Test OpenAI connectivity
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          curl --fail --silent --show-error https://api.openai.com/v1/models \
+            -H "Authorization: Bearer $OPENAI_API_KEY" > /dev/null
 
       - name: Run training rollout script
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          API_KEY: ${{ secrets.API_KEY }}
-          API_BASE_URL: ${{ secrets.API_BASE_URL }}
         run: |
           python train.py --task easy --episodes 5 --model gpt-4o --out train_rollouts.jsonl
 
