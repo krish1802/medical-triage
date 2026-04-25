@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 from openai import OpenAI, APIConnectionError
 from src.medical_triage import MedicalTriageEnv, TriageAction, PatientRanking
 
-API_KEY = os.getenv("API_BASE_URL") or os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+API_KEY = os.getenv("OPENAI_API_KEY") or os.getenv("HF_TOKEN") or os.getenv("API_KEY")
 API_BASE_URL = "https://api.openai.com/v1"
 MODEL_NAME = "gpt-4o"
 
