@@ -49,7 +49,7 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          python train.py 
+          python train.py --episodes 5
 
       - name: Upload rollout artifact
         uses: actions/upload-artifact@v4
